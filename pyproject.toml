@@ -50,9 +50,6 @@ ruff = ">=0.2.0"
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
 
-[project.scripts]
-my-cli = "rra_tools.cli:main"
-
 [tool.ruff]
 target-version = "py310" # The lowest supported version
 

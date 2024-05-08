@@ -16,6 +16,45 @@
 
 Common utilities for IHME Rapid Response team pipelines.
 
+#### Translation
+
+The `translate` module provides functions to translate text files from one
+language to another.
+
+
+```python
+from rra_tools.translate import translate_text_file
+
+translate_text_file("path/to/input.txt", "path/to/output.txt")
+```
+
+By default, it will attempt to autodetect the language in the input file and produce
+outputs in English, but you can specify the source and target languages:
+
+```python
+from rra_tools.translate import translate_text_file
+# Translate from German to Spanish
+translate_text_file(
+    "path/to/input.txt",
+    "path/to/output.txt",
+    source_language="de",
+    target_language="es",
+)
+```
+
+The `translate` subpackage can also translate dataframe columns
+
+```python
+import pandas as pd
+from rra_tools.translate import translate_dataframe
+
+df = pd.DataFrame({"text": ["hola", "mundo"]})
+translated_df = translate_dataframe(df, columns=["text"])
+```
+
+
+---
+
 ## Installation
 
 ```sh
@@ -24,27 +63,33 @@ pip install rra-tools
 
 ## Development
 
-* Clone this repository
-* Requirements:
-  * [Poetry](https://python-poetry.org/)
-  * Python 3.10+
-* Create a virtual environment and install the dependencies
+Instructions using conda:
 
-```sh
-poetry install
-```
+1. Clone this repository.
 
-* Activate the virtual environment
+    Over ssh:
+    ```sh
+    git clone git@github.com:ihmeuw/climate-downscale.git
+    ```
 
-```sh
-poetry shell
-```
+    Over https:
+    ```sh
+    git clone https://github.com/ihmeuw/climate-downscale.git
+    ```
 
-### Testing
+2. Create a new conda environment.
 
-```sh
-pytest
-```
+    ```sh
+    conda create -n climate-downscale python=3.10
+    conda activate climate-downscale
+    ```
+
+3. Install `poetry` and the project dependencies.
+
+    ```sh
+    conda install poetry
+    poetry install
+    ```
 
 ### Documentation
 
@@ -82,7 +127,5 @@ pre-commit install -t pre-push
 Or if you want e.g. want to run all checks manually for all files:
 
 ```sh
-pre-commit run --all-files
+poetry run pre-commit run --all-files
 ```
-
----

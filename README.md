@@ -16,7 +16,104 @@
 
 Common utilities for IHME Rapid Response team pipelines.
 
-#### Translation
+### Shell Tools
+
+The `shell_tools` module provides a few functions to run common shell commands.
+
+1. `wget` - Download a file from a URL
+
+   ```python
+    from rra_tools.shell_tools import wget
+
+    wget("https://example.com/file.txt", "path/to/output.txt")
+    ```
+
+2. `unzip_and_delete_archive` - Unzip a file and delete the archive
+
+   ```python
+    from rra_tools.shell_tools import unzip_and_delete_archive
+
+    unzip_and_delete_archive("path/to/archive.zip", "path/to/output")
+    ```
+
+    Note: you may need to install `unzip` on your system to use this function. You
+    can do so with `conda install -c conda-forge unzip`.
+
+3. `mkdir` - Create a directory with correct permissions.
+    The default operation of mkdir via the `os` module or `pathlib` translates uses
+    the umask of the user running the script along with the permissions set. This
+    often results in unexpected permissions on the created directory. This function
+    allows you to specify the permissions of the directory without relying on the
+    umask.
+
+    ```python
+    from rra_tools.shell_tools import mkdir
+
+    mkdir("path/to/directory", mode=0o755)
+    # Can also make parents
+    mkdir("path/to/other/directory", parents=True, mode=0o775)
+    # Can also do a no-op if the directory already exists
+    mkdir("path/to/other/directory", mode=0o775)
+    ```
+
+4. `touch` - Create a file with the correct permissions.
+    Like `mkdir`, `touch` allows you to specify the permissions of the file without
+    relying on the umask.
+
+    ```python
+    from rra_tools.shell_tools import touch
+
+    touch("path/to/file.txt", mode=0o664)
+    ```
+
+### Parallel Processing
+
+The `parallel` module provides a utility to run a function of a single argument in
+parallel across a list of inputs.
+
+```python
+from rra_tools.parallel import run_parallel
+
+# Trivial example
+def my_runner(x):
+    return x ** 2
+
+inputs = list(range(1000))
+
+results = run_parallel(
+    my_runner,
+    inputs,
+    num_cores=3,  # By default, num_cores is set to 1 and will run sequentially
+)
+```
+
+In practice, the function we want to parallelize will be significantly more complex
+than the trivial example above. Generally, you want to set things up so that:
+
+1. The function you want to parallelize is self-contained and does not rely on any
+    global state.
+2. The function you want to parallelize is relatively expensive to run. If the
+    function is cheap to run, the overhead of parallelization can outweigh the benefits
+    of parallelization.
+3. The input argument to the function is relatively small in memory. Multiprocessing
+    needs to copy the input data to each worker process, so if the input data is large,
+    the overhead of copying the data can outweigh the benefits of parallelization.
+    A common way to overcome this limitation is to pass the path to the input data
+    instead of the data itself and then have the function read the data from the path.
+4. The function is not *too* complex. If your `runner` function is complicated, you may
+    end up with resource contention between the worker processes that is hard to
+    understand (e.g. you may run out of memory because each worker process is trying
+    is loading a big dataset at the same time). There's no hard and fast rule here,
+    but once functions get to be more than a few dozen lines long, you should start
+    thinking about whether process-based parallelization is the right choice, and maybe
+    opt for a different parallelization strategy (like `jobmon` described below).
+
+
+### Jobmon Integration
+
+TODO
+
+### Translation
 
 The `translate` module provides functions to translate text files from one
 language to another.

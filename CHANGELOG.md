@@ -8,3 +8,4 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Initial repo setup
 - Added translation module
 - Added module with shell tools
+- Added module for parallel processing

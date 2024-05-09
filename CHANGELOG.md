@@ -10,3 +10,5 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Added module with shell tools
 - Added module for parallel processing with multiprocessing
 - Added module for parallel processing with jobmon
+- Added subpackage with cli tools
+- Added subpackage with logging utilities

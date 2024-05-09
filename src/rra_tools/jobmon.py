@@ -53,8 +53,8 @@ def build_parallel_task_graph(  # type: ignore[no-untyped-def]
     task_template = jobmon_tool.get_task_template(
         default_compute_resources={
             **task_resources,
-            "stdout": str(log_dir),
-            "stderr": str(log_dir),
+            "stdout": f"{log_dir}/output",
+            "stderr": f"{log_dir}/error",
         },
         template_name=f"{task_name}_task_template",
         default_cluster_name="slurm",

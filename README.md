@@ -66,10 +66,10 @@ The `shell_tools` module provides a few functions to run common shell commands.
     touch("path/to/file.txt", mode=0o664)
     ```
 
-### Parallel Processing
+### Parallel Processing with Multiprocessing
 
 The `parallel` module provides a utility to run a function of a single argument in
-parallel across a list of inputs.
+parallel across a list of inputs using multiprocessing.
 
 ```python
 from rra_tools.parallel import run_parallel
@@ -111,7 +111,33 @@ than the trivial example above. Generally, you want to set things up so that:
 
 ### Jobmon Integration
 
-TODO
+The `jobmon` module provides a set of utilities to run more complicated parallel
+jobs by interfacing with a job scheduler like `slurm`. See
+[Jobmon documentation](https://jobmon.readthedocs.io/en/latest/index.html) for more
+information.
+
+#### Installation
+
+Jobmon is not installed by default with `rra-tools` and is only available to download
+and install on the IHME cluster. To install jobmon, you must have
+a conf file in your home directory at `~/.pip/pip.conf` with the following contents:
+
+```
+[global]
+extra-index-url = https://artifactory.ihme.washington.edu/artifactory/api/pypi/pypi-shared/simple
+trusted-host = artifactory.ihme.washington.edu/artifactory/api/pypi/pypi-shared
+```
+
+Then you can install jobmon with:
+
+```sh
+pip install jobmon[ihme]
+```
+
+#### Usage
+
+TBD
+
 
 ### Translation
 

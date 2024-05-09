@@ -49,11 +49,8 @@ pytest-github-actions-annotate-failures = "*"
 pytest-cov = "*"
 python-kacl = "*"
 ruff = "^0.4.3"
-pandas-stubs = "^2.2.1.240316"
-
-
-[tool.poetry.group.deve.dependencies]
-types-tqdm = "^4.66.0.20240417"
+pandas-stubs = "*"
+types-tqdm = "*"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
@@ -100,6 +97,9 @@ classmethod-decorators = [
 
 [tool.ruff.lint.flake8-tidy-imports]
 ban-relative-imports = "all"
+
+[tool.ruff.lint.pylint]
+max-args = 6
 
 [tool.pytest.ini_options]
 addopts = """\

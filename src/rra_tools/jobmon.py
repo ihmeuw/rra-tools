@@ -59,9 +59,7 @@ def build_parallel_task_graph(  # type: ignore[no-untyped-def]
         template_name=f"{task_name}_task_template",
         default_cluster_name="slurm",
         command_template=(
-            f"{runner} {task_name} "
-            + " ".join([f"--{k} {{{k}}}" for k in node_args])
-            + " --output-dir {output_dir}"
+            f"{runner} {task_name} " + " ".join([f"--{k} {{{k}}}" for k in node_args])
         ),
         node_args=list(node_args),
         task_args=[],

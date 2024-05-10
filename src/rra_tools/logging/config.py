@@ -1,10 +1,13 @@
+from __future__ import annotations
+
 import sys
 from collections.abc import Callable
 from logging import Handler
 from pathlib import Path
 from typing import TextIO
 
-from loguru import Message, Writable, logger
+import loguru
+from loguru import logger
 
 from rra_tools.shell_tools import mkdir
 
@@ -54,7 +57,7 @@ def configure_logging_to_files(log_dir: str | Path) -> None:
 
 
 def add_logging_sink(
-    sink: TextIO | Writable | Callable[[Message], None] | Handler | Path,
+    sink: TextIO | loguru.Writable | Callable[[loguru.Message], None] | Handler | Path,
     verbose: int,
     *,
     colorize: bool = False,

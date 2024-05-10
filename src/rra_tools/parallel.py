@@ -9,6 +9,8 @@ arguments.
 
 """
 
+from __future__ import annotations
+
 from collections.abc import Callable
 from multiprocessing import Pool as StdLibPool
 from typing import Any, TypeVar
@@ -17,7 +19,7 @@ import pandas as pd
 import tqdm
 from pathos.multiprocessing import ProcessPool as PathosPool
 
-Loader = Callable[[Any, pd.Index[Any] | None, int, int, bool], pd.DataFrame]
+Loader = Callable[[Any, pd.Index | None, int, int, bool], pd.DataFrame]  # type: ignore[type-arg]
 
 T = TypeVar("T")
 

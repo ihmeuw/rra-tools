@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "rra-tools"
-version = "1.0.0"
+version = "0.0.1"
 description = "Common utilities for IHME Rapid Response team pipelines."
 authors = [
     "James Collins <collijk@uw.edu>",
@@ -79,6 +79,7 @@ ignore = [
     "E501",     # Line too long, this is autoformatted
     "PD901",    # Avoid generic use of name `df`.  Practicality beats purity.
     "S603",     # Supbrocess arg validation, prone to false positives
+    "TCH003",   # Imports for typechecking only
 ]
 ignore-init-module-imports = true
 

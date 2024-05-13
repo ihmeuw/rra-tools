@@ -1,6 +1,6 @@
 from collections.abc import Callable, Sequence
 from pathlib import Path
-from typing import ParamSpec, TypeVar
+from typing import Any, ParamSpec, TypeVar
 
 import click
 
@@ -68,20 +68,39 @@ def process_choices(
     return option_type, default, show_default
 
 
-def with_year(
+def with_choice(
+    name: str,
+    short_name: str | None = None,
     *,
     allow_all: bool = True,
     choices: Sequence[str] | None = None,
+    **kwargs: Any,
 ) -> ClickOption[_P, _T]:
+    """Create an option with a set of choices.
+
+    Parameters
+    ----------
+    name
+        The name of the option.
+    short_name
+        An optional short name for the option.
+    allow_all
+        Whether to allow the special value "ALL", which represents all choices.
+    choices
+        The set of choices to allow.
+
+    """
+    names = [name.replace("_", "-")]
+    if short_name is not None:
+        names.append(short_name)
     option_type, default, show_default = process_choices(allow_all, choices)
 
     return click.option(
-        "--year",
-        "-y",
+        *names,
         type=option_type,
         default=default,
-        help="Year to run.",
         show_default=show_default,
+        **kwargs,
     )
 
 

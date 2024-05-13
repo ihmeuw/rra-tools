@@ -90,9 +90,12 @@ def with_choice(
         The set of choices to allow.
 
     """
-    names = [name.replace("_", "-")]
+    names = [f"--{name.replace('_', '-')}"]
     if short_name is not None:
-        names.append(short_name)
+        if len(short_name) != 1:
+            msg = "Short names must be a single character."
+            raise ValueError(msg)
+        names.append(f"-{short_name}")
     option_type, default, show_default = process_choices(allow_all, choices)
 
     return click.option(

@@ -1,4 +1,4 @@
-from collections.abc import Callable
+from collections.abc import Callable, Sequence
 from pathlib import Path
 from typing import ParamSpec, TypeVar
 
@@ -7,10 +7,85 @@ import click
 _T = TypeVar("_T")
 _P = ParamSpec("_P")
 _EntryPoint = Callable[_P, _T]
-_ClickOption = Callable[[_EntryPoint[_P, _T]], _EntryPoint[_P, _T]]
+ClickOption = Callable[[_EntryPoint[_P, _T]], _EntryPoint[_P, _T]]
 
 
-def with_verbose() -> _ClickOption[_P, _T]:
+RUN_ALL = "ALL"
+
+
+def process_choices(
+    allow_all: bool,  # noqa: FBT001
+    choices: Sequence[str] | None,
+) -> tuple[click.ParamType, str | None, bool]:
+    """Support function for creating options with choices.
+
+    A common pattern in RRA pipelines is to build CLIs that admit a choice
+    of a specific set of values or a special value that represents all
+    possible values. This function provides a way to handle this pattern
+    in a consistent way.
+
+    There are four possible cases:
+    1. No choices are provided and RUN_ALL is allowed. This is useful when the
+        set of choices is not known ahead of time, or is contingent on another
+        option. For example, if there is a task that depends on location and year,
+        but the years available depend on the location. The user might want to
+        run a single year for a location (which they'll have to know ahead of time);
+        or all years for a location, which would be the subset of years available
+        for that location; or all years for all locations, which could be a different
+        subset of years for each included location.
+    2. Choices are provided and RUN_ALL is allowed. This is useful when the set of
+        choices is known ahead of time, but the user might want to run all of them.
+    3. No choices are provided and RUN_ALL is not allowed. This is useful when the
+        set of choices is not known ahead of time, but the user must provide a value.
+    4. Choices are provided and RUN_ALL is not allowed. This is useful when the set of
+        choices is known ahead of time and the user must provide a value.
+
+    Parameters
+    ----------
+    allow_all
+        Whether to allow the special value RUN_ALL.
+    choices
+        The set of choices to allow.
+
+    Returns
+    -------
+    tuple[click.ParamType, str | None, bool]
+        The option type, default value, and whether to show the default.
+    """
+
+    if choices is None:
+        option_type: click.ParamType = click.STRING
+        default = RUN_ALL if allow_all else None
+    else:
+        choices = list(choices)
+        if allow_all:
+            choices.append(RUN_ALL)
+            default = RUN_ALL
+        else:
+            default = choices[-1]
+        option_type = click.Choice(choices)
+    show_default = default is not None
+    return option_type, default, show_default
+
+
+def with_year(
+    *,
+    allow_all: bool = True,
+    choices: Sequence[str] | None = None,
+) -> ClickOption[_P, _T]:
+    option_type, default, show_default = process_choices(allow_all, choices)
+
+    return click.option(
+        "--year",
+        "-y",
+        type=option_type,
+        default=default,
+        help="Year to run.",
+        show_default=show_default,
+    )
+
+
+def with_verbose() -> ClickOption[_P, _T]:
     return click.option(
         "-v",
         "verbose",
@@ -19,7 +94,7 @@ def with_verbose() -> _ClickOption[_P, _T]:
     )
 
 
-def with_debugger() -> _ClickOption[_P, _T]:
+def with_debugger() -> ClickOption[_P, _T]:
     return click.option(
         "--pdb",
         "debugger",
@@ -28,7 +103,7 @@ def with_debugger() -> _ClickOption[_P, _T]:
     )
 
 
-def with_input_directory(name: str, default: str | Path) -> _ClickOption[_P, _T]:
+def with_input_directory(name: str, default: str | Path) -> ClickOption[_P, _T]:
     return click.option(
         f"--{name.replace('_', '-')}-dir",
         type=click.Path(exists=True, file_okay=False, dir_okay=True),
@@ -38,7 +113,7 @@ def with_input_directory(name: str, default: str | Path) -> _ClickOption[_P, _T]
     )
 
 
-def with_output_directory(default: str | Path) -> _ClickOption[_P, _T]:
+def with_output_directory(default: str | Path) -> ClickOption[_P, _T]:
     return click.option(
         "--output-dir",
         "-o",
@@ -49,7 +124,7 @@ def with_output_directory(default: str | Path) -> _ClickOption[_P, _T]:
     )
 
 
-def with_num_cores(default: int) -> _ClickOption[_P, _T]:
+def with_num_cores(default: int) -> ClickOption[_P, _T]:
     return click.option(
         "--num-cores",
         "-c",
@@ -59,7 +134,7 @@ def with_num_cores(default: int) -> _ClickOption[_P, _T]:
     )
 
 
-def with_queue() -> _ClickOption[_P, _T]:
+def with_queue() -> ClickOption[_P, _T]:
     return click.option(
         "-q",
         "queue",
@@ -69,7 +144,7 @@ def with_queue() -> _ClickOption[_P, _T]:
     )
 
 
-def with_progress_bar() -> _ClickOption[_P, _T]:
+def with_progress_bar() -> ClickOption[_P, _T]:
     return click.option(
         "--progress-bar",
         "--pb",
@@ -78,7 +153,7 @@ def with_progress_bar() -> _ClickOption[_P, _T]:
     )
 
 
-def with_dry_run() -> _ClickOption[_P, _T]:
+def with_dry_run() -> ClickOption[_P, _T]:
     return click.option(
         "--dry-run",
         "-n",

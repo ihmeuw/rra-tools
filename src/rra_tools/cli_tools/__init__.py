@@ -3,6 +3,8 @@ from rra_tools.cli_tools.importers import (
     import_module_from_info,
 )
 from rra_tools.cli_tools.options import (
+    RUN_ALL,
+    ClickOption,
     process_choices,
     with_choice,
     with_debugger,
@@ -28,4 +30,6 @@ __all__ = [
     "with_verbose",
     "process_choices",
     "with_choice",
+    "RUN_ALL",
+    "ClickOption",
 ]

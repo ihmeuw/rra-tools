@@ -42,30 +42,104 @@ def get_jobmon_tool(workflow_name: str):  # type: ignore[no-untyped-def]
     return Tool(workflow_name)
 
 
-def build_parallel_task_graph(  # type: ignore[no-untyped-def]
+def _process_args(
+    args: dict[str, list[Any] | None] | None,
+) -> tuple[dict[str, list[Any]], str]:
+    """Process arguments for a task.
+
+    Parameters
+    ----------
+    args
+        The arguments to process.
+
+    Returns
+    -------
+    tuple[list, str]
+        The names of all non-flag and non-count arguments and the string
+        representation of the arguments.
+    """
+    if args is None:
+        return {}, ""
+    out_args = {}
+    arg_parts = []
+    for k, v in args.items():
+        if v is not None:
+            arg_parts.append(f"--{k} {v[0]}")
+            out_args[k] = v
+        elif len(k) == 1:
+            arg_parts.append(f"-{k}")
+        else:
+            arg_parts.append(f"--{k}")
+    arg_string = " ".join(arg_parts)
+    return out_args, arg_string
+
+
+def build_parallel_task_graph(  # type: ignore[no-untyped-def] # noqa: PLR0913
     jobmon_tool,
+    runner: str,
     task_name: str,
-    log_dir: str | Path,
-    node_args: dict[str, list[Any]],
     task_resources: dict[str, str | int],
-    runner: str = "rptask",
+    *,
+    node_args: dict[str, list[Any] | None] | None = None,
+    task_args: dict[str, list[Any] | None] | None = None,
+    op_args: dict[str, list[Any] | None] | None = None,
 ) -> list[Any]:
+    """Build a parallel task graph for jobmon.
+
+    Parameters
+    ----------
+    jobmon_tool
+        The jobmon tool.
+    runner
+        The runner to use for the task.
+    task_name
+        The name of the task.
+    node_args
+        The arguments to the task script that are unique to each task.
+    task_args
+        The arguments to the task script that are the same for each task, but
+        alter the behavior of the task (e.g. input and output root directories).
+    op_args
+        Arguments that are passed to the task script but do not alter the logical
+        behavior of the task (e.g. number of cores, logging verbosity).
+    task_resources
+        The resources to allocate to the task.
+
+    Returns
+    -------
+    list
+        A list of tasks to run.
+    """
+    for arg in ["stdout", "stderr"]:
+        task_resources[arg] = str(task_resources.get(arg, "/tmp"))  # noqa: S108
+
+    clean_node_args, node_arg_string = _process_args(node_args)
+    clean_task_args, task_arg_string = _process_args(task_args)
+    clean_op_args, op_arg_string = _process_args(op_args)
+
+    command_template = (
+        f"{runner} {task_name} "
+        f"{node_arg_string} "
+        f"{task_arg_string} "
+        f"{op_arg_string}"
+    )
+
     task_template = jobmon_tool.get_task_template(
-        default_compute_resources={
-            **task_resources,
-            "stdout": f"{log_dir}/output",
-            "stderr": f"{log_dir}/error",
-        },
+        default_compute_resources=task_resources,
         template_name=f"{task_name}_task_template",
         default_cluster_name="slurm",
-        command_template=(
-            f"{runner} {task_name} " + " ".join([f"--{k} {{{k}}}" for k in node_args])
-        ),
-        node_args=list(node_args),
-        task_args=[],
-        op_args=[],
+        command_template=command_template,
+        node_args=list(clean_node_args),
+        task_args=list(clean_task_args),
+        op_args=list(clean_op_args),
     )
-    return task_template.create_tasks(**node_args)  # type: ignore[no-any-return]
+    return task_template.create_tasks(  # type: ignore[no-any-return]
+        {
+            **clean_node_args,
+            **clean_task_args,
+            **clean_op_args,
+        }
+    )
 
 
 def run_workflow(  # type: ignore[no-untyped-def]
@@ -88,7 +162,9 @@ def run_workflow(  # type: ignore[no-untyped-def]
     return status
 
 
-def make_log_dir(output_dir: str | Path) -> Path:
+def make_log_dir(
+    output_dir: str | Path,
+) -> Path:
     run_time = datetime.datetime.now().strftime("%Y_%m_%d_%H_%M_%S")  # noqa: DTZ005
     log_dir = Path(output_dir) / "zzz_logs" / run_time
     mkdir(log_dir, parents=True)
@@ -97,12 +173,16 @@ def make_log_dir(output_dir: str | Path) -> Path:
     return log_dir
 
 
-def run_parallel(
-    task_name: str,
-    node_args: dict[str, list[Any]],
-    task_resources: dict[str, str | int],
+def run_parallel(  # noqa: PLR0913
     runner: str,
+    task_name: str,
+    task_resources: dict[str, str | int],
+    *,
+    node_args: dict[str, list[Any] | None] | None = None,
+    task_args: dict[str, list[Any] | None] | None = None,
+    op_args: dict[str, list[Any] | None] | None = None,
     log_root: str | Path | None = None,
+    log_method: Callable[[str], None] = print,
 ) -> None:
     """Run a parallel set of tasks using Jobmon.
 
@@ -114,25 +194,35 @@ def run_parallel(
     Parameters
     ----------
     task_name
-        The name of the task to run.  Will also be used as the tool and workflow name.
+        pThe name of the task to run.  Will also be used as the tool and workflow name.
     node_args
-        The arguments to the task script.
+        The arguments to the task script that are unique to each task.
+    task_args
+        The arguments to the task script that are the same for each task, but
+        alter the behavior of the task (e.g. input and output root directories).
+    op_args
+        Arguments that are passed to the task script but do not alter the logical
+        behavior of the task (e.g. number of cores, logging verbosity).
     task_resources
         The resources to allocate to the task.
     runner
         The runner to use for the task. Default is 'rptask'.
     log_root
         The root directory for the logs. Default is None.
+    log_method
+        The method to use for logging. Default is print.
     """
     if log_root is None:
-        if "output-dir" not in node_args:
+        if task_args is None or "output-dir" not in task_args:
             msg = (
-                "The node_args dictionary must contain an 'output-dir' key if no "
+                "The task_args dictionary must contain an 'output-dir' key if no "
                 "log_root is provided."
             )
             raise KeyError(msg)
-        log_root = Path(node_args["output-dir"][0])
+        log_root = Path(task_args["output-dir"][0])  # type: ignore[index]
     log_dir = make_log_dir(log_root)
+    task_resources["stdout"] = str(log_dir / "output")
+    task_resources["stderr"] = str(log_dir / "error")
 
     tool = get_jobmon_tool(workflow_name=task_name)
     workflow = tool.create_workflow(name=f"{task_name}_{uuid.uuid4()}")
@@ -140,11 +230,12 @@ def run_parallel(
     tasks = build_parallel_task_graph(
         jobmon_tool=tool,
         task_name=task_name,
-        log_dir=log_dir,
         node_args=node_args,
+        task_args=task_args,
+        op_args=op_args,
         task_resources=task_resources,
         runner=runner,
     )
 
     workflow.add_tasks(tasks)
-    run_workflow(workflow)
+    run_workflow(workflow, log_method)

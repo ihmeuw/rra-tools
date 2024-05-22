@@ -135,7 +135,7 @@ def build_parallel_task_graph(  # type: ignore[no-untyped-def] # noqa: PLR0913
             tuple([arg.replace("-", "_") for arg in flat_node_args[0]]),
             flat_node_args[1],
         )
-        clean_node_args: dict[str, list[Any]] = {}
+        clean_node_args: dict[str, list[Any]] = {k: [] for k in flat_node_args[0]}
     else:
         clean_node_args, node_arg_string = _process_args(node_args)
     clean_task_args, task_arg_string = _process_args(task_args)
@@ -162,19 +162,18 @@ def build_parallel_task_graph(  # type: ignore[no-untyped-def] # noqa: PLR0913
         tasks = []
         arg_names, arg_values = flat_node_args
         for args in arg_values:
-            task = task_template.create_task(
+            task_args = {
                 **dict(zip(arg_names, args, strict=False)),
                 **clean_task_args,
                 **clean_op_args,
-            )
+            }
+            task = task_template.create_task(**task_args)
             tasks.append(task)
     else:
         tasks = task_template.create_tasks(
-            {
-                **clean_node_args,
-                **clean_task_args,
-                **clean_op_args,
-            }
+            **clean_node_args,
+            **clean_task_args,
+            **clean_op_args,
         )
     return tasks
 

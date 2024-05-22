@@ -43,7 +43,7 @@ def get_jobmon_tool(workflow_name: str):  # type: ignore[no-untyped-def]
 
 
 def _process_args(
-    args: dict[str, list[Any] | None] | None,
+    args: dict[str, list[Any] | Any] | None,
 ) -> tuple[dict[str, list[Any]], str]:
     """Process arguments for a task.
 
@@ -64,9 +64,9 @@ def _process_args(
     arg_parts = []
     for k, v in args.items():
         if v is not None:
-            arg_parts.append(f"--{k} {v[0]}")
+            arg_parts.append(f"--{k} {{{k.replace('-', '_')}}}")
             out_args[k] = v
-        elif len(k) == 1:
+        elif len(k) == 1 or k in ["v", "vv", "vvv"]:
             arg_parts.append(f"-{k}")
         else:
             arg_parts.append(f"--{k}")
@@ -81,8 +81,8 @@ def build_parallel_task_graph(  # type: ignore[no-untyped-def] # noqa: PLR0913
     task_resources: dict[str, str | int],
     *,
     node_args: dict[str, list[Any] | None] | None = None,
-    task_args: dict[str, list[Any] | None] | None = None,
-    op_args: dict[str, list[Any] | None] | None = None,
+    task_args: dict[str, Any] | None = None,
+    op_args: dict[str, Any] | None = None,
 ) -> list[Any]:
     """Build a parallel task graph for jobmon.
 
@@ -179,8 +179,8 @@ def run_parallel(  # noqa: PLR0913
     task_resources: dict[str, str | int],
     *,
     node_args: dict[str, list[Any] | None] | None = None,
-    task_args: dict[str, list[Any] | None] | None = None,
-    op_args: dict[str, list[Any] | None] | None = None,
+    task_args: dict[str, Any] | None = None,
+    op_args: dict[str, Any] | None = None,
     log_root: str | Path | None = None,
     log_method: Callable[[str], None] = print,
 ) -> None:
@@ -219,7 +219,7 @@ def run_parallel(  # noqa: PLR0913
                 "log_root is provided."
             )
             raise KeyError(msg)
-        log_root = Path(task_args["output-dir"][0])  # type: ignore[index]
+        log_root = Path(task_args["output-dir"])
     log_dir = make_log_dir(log_root)
     task_resources["stdout"] = str(log_dir / "output")
     task_resources["stderr"] = str(log_dir / "error")

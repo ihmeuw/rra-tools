@@ -81,6 +81,7 @@ def build_parallel_task_graph(  # type: ignore[no-untyped-def] # noqa: PLR0913
     task_resources: dict[str, str | int],
     *,
     node_args: dict[str, list[Any] | None] | None = None,
+    flat_node_args: tuple[tuple[str, ...], list[tuple[Any, ...]]] | None = None,
     task_args: dict[str, Any] | None = None,
     op_args: dict[str, Any] | None = None,
 ) -> list[Any]:
@@ -95,7 +96,17 @@ def build_parallel_task_graph(  # type: ignore[no-untyped-def] # noqa: PLR0913
     task_name
         The name of the task.
     node_args
-        The arguments to the task script that are unique to each task.
+        The arguments to the task script that are unique to each task. The keys of
+        the dict are the names of the arguments and the values are lists of the
+        values to use for each task. A dict with multiple keys will result in a
+        cartesian product of the values. Mutually exclusive with
+        flat_node_args.
+    flat_node_args
+        The arguments to the task script that are unique to each task. The first
+        element of the tuple is the names of the arguments and the second element
+        is a list of tuples of the values to use for each task. This can be used
+        to avoid the cartesian product of node_args and just run a subset of the
+        possible tasks. Mutually exclusive with node_args.
     task_args
         The arguments to the task script that are the same for each task, but
         alter the behavior of the task (e.g. input and output root directories).
@@ -113,7 +124,16 @@ def build_parallel_task_graph(  # type: ignore[no-untyped-def] # noqa: PLR0913
     for arg in ["stdout", "stderr"]:
         task_resources[arg] = str(task_resources.get(arg, "/tmp"))  # noqa: S108
 
-    clean_node_args, node_arg_string = _process_args(node_args)
+    if node_args is not None and flat_node_args is not None:
+        msg = "node_args and flat_node_args are mutually exclusive."
+        raise ValueError(msg)
+    if flat_node_args is not None:
+        node_arg_string = " ".join(
+            f"--{arg} {{{arg.replace('-', '_')}}}" for arg in flat_node_args[0]
+        )
+        clean_node_args: dict[str, list[Any]] = {}
+    else:
+        clean_node_args, node_arg_string = _process_args(node_args)
     clean_task_args, task_arg_string = _process_args(task_args)
     clean_op_args, op_arg_string = _process_args(op_args)
 
@@ -133,13 +153,28 @@ def build_parallel_task_graph(  # type: ignore[no-untyped-def] # noqa: PLR0913
         task_args=list(clean_task_args),
         op_args=list(clean_op_args),
     )
-    return task_template.create_tasks(  # type: ignore[no-any-return]
-        {
-            **clean_node_args,
-            **clean_task_args,
-            **clean_op_args,
-        }
-    )
+
+    if flat_node_args is not None:
+        tasks = []
+        arg_names, arg_values = flat_node_args
+        for args in arg_values:
+            task = task_template.create_task(
+                {
+                    **dict(zip(arg_names, args, strict=False)),
+                    **clean_task_args,
+                    **clean_op_args,
+                }
+            )
+            tasks.append(task)
+    else:
+        tasks = task_template.create_tasks(
+            {
+                **clean_node_args,
+                **clean_task_args,
+                **clean_op_args,
+            }
+        )
+    return tasks
 
 
 def run_workflow(  # type: ignore[no-untyped-def]
@@ -179,6 +214,7 @@ def run_parallel(  # noqa: PLR0913
     task_resources: dict[str, str | int],
     *,
     node_args: dict[str, list[Any] | None] | None = None,
+    flat_node_args: tuple[tuple[str, ...], list[tuple[Any, ...]]] | None = None,
     task_args: dict[str, Any] | None = None,
     op_args: dict[str, Any] | None = None,
     log_root: str | Path | None = None,
@@ -196,7 +232,17 @@ def run_parallel(  # noqa: PLR0913
     task_name
         pThe name of the task to run.  Will also be used as the tool and workflow name.
     node_args
-        The arguments to the task script that are unique to each task.
+        The arguments to the task script that are unique to each task. The keys of
+        the dict are the names of the arguments and the values are lists of the
+        values to use for each task. A dict with multiple keys will result in a
+        cartesian product of the values. Mutually exclusive with
+        flat_node_args.
+    flat_node_args
+        The arguments to the task script that are unique to each task. The first
+        element of the tuple is the names of the arguments and the second element
+        is a list of tuples of the values to use for each task. This can be used
+        to avoid the cartesian product of node_args and just run a subset of the
+        possible tasks. Mutually exclusive with node_args.
     task_args
         The arguments to the task script that are the same for each task, but
         alter the behavior of the task (e.g. input and output root directories).
@@ -212,6 +258,10 @@ def run_parallel(  # noqa: PLR0913
     log_method
         The method to use for logging. Default is print.
     """
+    if node_args is not None and flat_node_args is not None:
+        msg = "node_args and flat_node_args are mutually exclusive."
+        raise ValueError(msg)
+
     if log_root is None:
         if task_args is None or "output-dir" not in task_args:
             msg = (
@@ -231,6 +281,7 @@ def run_parallel(  # noqa: PLR0913
         jobmon_tool=tool,
         task_name=task_name,
         node_args=node_args,
+        flat_node_args=flat_node_args,
         task_args=task_args,
         op_args=op_args,
         task_resources=task_resources,

@@ -37,6 +37,7 @@ deep-translator = "^1.11.4"
 tqdm = "^4.66.4"
 pathos = "^0.3.2"
 loguru = "^0.7.2"
+requests = "^2.32.2"
 
 [tool.poetry.group.dev.dependencies]
 mkdocstrings = {version = ">=0.23", extras = ["python"]}

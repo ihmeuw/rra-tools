@@ -65,7 +65,7 @@ def _process_args(
     for k, v in args.items():
         if v is not None:
             arg_parts.append(f"--{k} {{{k.replace('-', '_')}}}")
-            out_args[k.replace('-', '_')] = v
+            out_args[k.replace("-", "_")] = v
         elif len(k) == 1 or k in ["v", "vv", "vvv"]:
             arg_parts.append(f"-{k}")
         else:
@@ -131,7 +131,10 @@ def build_parallel_task_graph(  # type: ignore[no-untyped-def] # noqa: PLR0913
         node_arg_string = " ".join(
             f"--{arg} {{{arg.replace('-', '_')}}}" for arg in flat_node_args[0]
         )
-        flat_node_args[0] = tuple([arg.replace('-', '_') for ar in flat_node_args[0]])
+        flat_node_args = (
+            tuple([arg.replace("-", "_") for arg in flat_node_args[0]]),
+            flat_node_args[1],
+        )
         clean_node_args: dict[str, list[Any]] = {}
     else:
         clean_node_args, node_arg_string = _process_args(node_args)

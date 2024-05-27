@@ -84,6 +84,7 @@ def build_parallel_task_graph(  # type: ignore[no-untyped-def] # noqa: PLR0913
     flat_node_args: tuple[tuple[str, ...], list[tuple[Any, ...]]] | None = None,
     task_args: dict[str, Any] | None = None,
     op_args: dict[str, Any] | None = None,
+    max_attempts: int | None = None,
 ) -> list[Any]:
     """Build a parallel task graph for jobmon.
 
@@ -115,6 +116,8 @@ def build_parallel_task_graph(  # type: ignore[no-untyped-def] # noqa: PLR0913
         behavior of the task (e.g. number of cores, logging verbosity).
     task_resources
         The resources to allocate to the task.
+    max_attempts
+        The maximum number of attempts to make for each task.
 
     Returns
     -------
@@ -167,13 +170,17 @@ def build_parallel_task_graph(  # type: ignore[no-untyped-def] # noqa: PLR0913
                 **clean_task_args,
                 **clean_op_args,
             }
-            task = task_template.create_task(**task_args)
+            task = task_template.create_task(
+                **task_args,
+                max_attempts=max_attempts,
+            )
             tasks.append(task)
     else:
         tasks = task_template.create_tasks(
             **clean_node_args,
             **clean_task_args,
             **clean_op_args,
+            max_attempts=max_attempts,
         )
     return tasks
 
@@ -218,6 +225,8 @@ def run_parallel(  # noqa: PLR0913
     flat_node_args: tuple[tuple[str, ...], list[tuple[Any, ...]]] | None = None,
     task_args: dict[str, Any] | None = None,
     op_args: dict[str, Any] | None = None,
+    concurrency_limit: int = 10000,
+    max_attempts: int | None = None,
     log_root: str | Path | None = None,
     log_method: Callable[[str], None] = print,
 ) -> None:
@@ -230,8 +239,12 @@ def run_parallel(  # noqa: PLR0913
 
     Parameters
     ----------
+    runner
+        The runner to use for the task. Default is 'rptask'.
     task_name
-        pThe name of the task to run.  Will also be used as the tool and workflow name.
+        The name of the task to run.  Will also be used as the tool and workflow name.
+    task_resources
+        The resources to allocate to the task.
     node_args
         The arguments to the task script that are unique to each task. The keys of
         the dict are the names of the arguments and the values are lists of the
@@ -250,10 +263,10 @@ def run_parallel(  # noqa: PLR0913
     op_args
         Arguments that are passed to the task script but do not alter the logical
         behavior of the task (e.g. number of cores, logging verbosity).
-    task_resources
-        The resources to allocate to the task.
-    runner
-        The runner to use for the task. Default is 'rptask'.
+    concurrency_limit
+        The maximum number of tasks to run concurrently. Default is 10000.
+    max_attempts
+        The maximum number of attempts to make for each task.
     log_root
         The root directory for the logs. Default is None.
     log_method
@@ -276,7 +289,10 @@ def run_parallel(  # noqa: PLR0913
     task_resources["stderr"] = str(log_dir / "error")
 
     tool = get_jobmon_tool(workflow_name=task_name)
-    workflow = tool.create_workflow(name=f"{task_name}_{uuid.uuid4()}")
+    workflow = tool.create_workflow(
+        name=f"{task_name}_{uuid.uuid4()}",
+        max_concurrently_running=concurrency_limit,
+    )
 
     tasks = build_parallel_task_graph(
         jobmon_tool=tool,
@@ -287,6 +303,7 @@ def run_parallel(  # noqa: PLR0913
         op_args=op_args,
         task_resources=task_resources,
         runner=runner,
+        max_attempts=max_attempts,
     )
 
     workflow.add_tasks(tasks)

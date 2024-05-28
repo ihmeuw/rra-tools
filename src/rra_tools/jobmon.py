@@ -199,6 +199,10 @@ def run_workflow(  # type: ignore[no-untyped-def]
         f"https://jobmon-gui.ihme.washington.edu/#/workflow/{workflow.workflow_id}/tasks"
     )
 
+    if "seconds_until_timeout" not in workflow_kwargs:
+        # Jobmon defaults to 10 hours, but this is too short for us in general
+        workflow_kwargs["seconds_until_timeout"] = 60 * 60 * 24 * 3
+
     # run workflow
     status = workflow.run(**workflow_kwargs)
     log_method(f"Workflow {workflow.workflow_id} completed with status {status}.")

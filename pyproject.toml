@@ -32,7 +32,7 @@ packages = [
 [tool.poetry.dependencies]
 python = ">=3.10, <4.0"
 click = "*"
-pandas = "^2.2.2"
+pandas = ">=1.5"
 deep-translator = "^1.11.4"
 tqdm = "^4.66.4"
 pathos = "^0.3.2"

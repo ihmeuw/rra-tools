@@ -182,7 +182,7 @@ def run_workflow(  # type: ignore[no-untyped-def]
     workflow,
     log_method: Callable[[str], None] = print,
     **workflow_kwargs,
-):
+) -> str:
     # Calling workflow.bind() first just so that we can get the workflow id
     workflow.bind()
     log_method("Workflow creation complete.")
@@ -195,7 +195,7 @@ def run_workflow(  # type: ignore[no-untyped-def]
     # run workflow
     status = workflow.run(**workflow_kwargs)
     log_method(f"Workflow {workflow.workflow_id} completed with status {status}.")
-    return status
+    return str(status)
 
 
 def make_log_dir(
@@ -220,7 +220,7 @@ def run_parallel(  # noqa: PLR0913
     op_args: dict[str, Any] | None = None,
     log_root: str | Path | None = None,
     log_method: Callable[[str], None] = print,
-) -> None:
+) -> str:
     """Run a parallel set of tasks using Jobmon.
 
     This helper function encapsulates one of the simpler workflow patterns in Jobmon:
@@ -258,6 +258,11 @@ def run_parallel(  # noqa: PLR0913
         The root directory for the logs. Default is None.
     log_method
         The method to use for logging. Default is print.
+
+    Returns
+    -------
+    str
+        The status of the workflow.
     """
     if node_args is not None and flat_node_args is not None:
         msg = "node_args and flat_node_args are mutually exclusive."
@@ -290,4 +295,4 @@ def run_parallel(  # noqa: PLR0913
     )
 
     workflow.add_tasks(tasks)
-    run_workflow(workflow, log_method)
+    return run_workflow(workflow, log_method)

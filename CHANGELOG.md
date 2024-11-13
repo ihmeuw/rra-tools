@@ -5,6 +5,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
+## [1.0.11] - 2024-06-25
+### Added
+- Backwards compatibility with pandas 1.5
+
+## [1.0.10] - 2024-05-28
+### Added
+- Change default timeout for jobmon workflow to 3 days instead of 10 hours.
+
+## [1.0.9] - 2024-05-27
+### Added
+- Add concurrency limit and max attempts to jobmon.
+
 ## [1.0.8] - 2024-05-22
 ### Added
 - Proper usage of jobmon node, task, and op args.
@@ -52,7 +64,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Added subpackage with cli tools
 - Added subpackage with logging utilities
 
-[Unreleased]: https://github.com/ihmeuw/rra-tools/compare/1.0.8...master
+[Unreleased]: https://github.com/ihmeuw/rra-tools/compare/1.0.11...master
+[1.0.11]: https://github.com/ihmeuw/rra-tools/compare/1.0.10...1.0.11
+[1.0.10]: https://github.com/ihmeuw/rra-tools/compare/1.0.9...1.0.10
+[1.0.9]: https://github.com/ihmeuw/rra-tools/compare/1.0.8...1.0.9
 [1.0.8]: https://github.com/ihmeuw/rra-tools/compare/1.0.7...1.0.8
 [1.0.7]: https://github.com/ihmeuw/rra-tools/compare/1.0.6...1.0.7
 [1.0.6]: https://github.com/ihmeuw/rra-tools/compare/1.0.5...1.0.6

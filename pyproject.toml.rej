@@ -1,0 +1,10 @@
+diff a/pyproject.toml b/pyproject.toml	(rejected hunks)
+@@ -53,7 +53,7 @@ ruff = ">=0.2.0"
+ requires = ["poetry-core>=1.0.0"]
+ build-backend = "poetry.core.masonry.api"
+ 
+-[project.scripts]
++[tool.poetry.scripts]
+ my-cli = "rra_tools.cli:main"
+ 
+ [tool.ruff]

@@ -14,9 +14,9 @@ theme:
         name: Switch to light mode
 
 nav:
-  - Introduction: 'index.md'
-  - api_docs.md
-  - changelog.md
+  - Home: 'index.md'
+  - Code Reference: reference/
+  - Changelog: changelog.md
 
 watch:
   - src/rra_tools
@@ -61,6 +61,12 @@ markdown_extensions:
 plugins:
   - table-reader
   - search
+  - gen-files:
+      scripts:
+        - scripts/gen_ref_pages.py
+  - literate-nav:
+      nav_vile: SUMMARY.md
+  - section-index
   - mkdocstrings:
       default_handler: python
       handlers:

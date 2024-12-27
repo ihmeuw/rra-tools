@@ -140,9 +140,3 @@ module = [
     "pathos.*",
 ]
 ignore_missing_imports = true
-
-# [[tool.mypy.overrides]]
-# module = [
-#   "tests/my_thing/test_my_thing",
-# ]
-# disallow_untyped_defs = false

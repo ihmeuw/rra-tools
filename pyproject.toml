@@ -43,6 +43,9 @@ requests = "^2.32.2"
 mkdocstrings = {version = ">=0.23", extras = ["python"]}
 mkdocs-material = "*"
 mkdocs-table-reader-plugin = "*"
+mkdocs-gen-files = "^0.5.0"
+mkdocs-literate-nav = "^0.6.1"
+mkdocs-section-index = "^0.3.9"
 mypy = "*"
 pre-commit = "*"
 pymdown-extensions = "*"
@@ -89,6 +92,9 @@ ignore-init-module-imports = true
     "S101",     # "Use of `assert` detected"
     "ARG",      # "Unused function argument". Fixtures are often unused.
     "S105",     # "Possible hardcoded password".
+]
+"scripts/**" = [
+    "INP001",   # "Scripts are not part of a package."
 ]
 
 [tool.ruff.lint.mccabe]

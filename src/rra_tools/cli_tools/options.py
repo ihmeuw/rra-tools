@@ -13,6 +13,26 @@ ClickOption = Callable[[_EntryPoint[_P, _T]], _EntryPoint[_P, _T]]
 RUN_ALL = "ALL"
 
 
+def convert_choice(value: str, choices: Sequence[str]) -> list[str]:
+    """Convert a choice to a list of choices, handling the special 'All' choice.
+
+    Parameters
+    ----------
+    value
+        The choice to convert.
+    choices
+        The set of choices to choose from.
+
+    Returns
+    -------
+    list[str]
+        The list of choices.
+    """
+    if value == RUN_ALL:
+        return list(choices)
+    return [value]
+
+
 def process_choices(
     allow_all: bool,  # noqa: FBT001
     choices: Sequence[str] | None,
@@ -62,7 +82,7 @@ def process_choices(
             choices.append(RUN_ALL)
             default = RUN_ALL
         else:
-            default = choices[-1]
+            default = None
         option_type = click.Choice(choices)
     show_default = default is not None
     return option_type, default, show_default
@@ -74,6 +94,7 @@ def with_choice(
     *,
     allow_all: bool = True,
     choices: Sequence[str] | None = None,
+    convert: bool = True,
     **kwargs: Any,
 ) -> ClickOption[_P, _T]:
     """Create an option with a set of choices.
@@ -88,8 +109,12 @@ def with_choice(
         Whether to allow the special value "ALL", which represents all choices.
     choices
         The set of choices to allow.
+    convert
+        Whether to convert the provided argument to a list, resolving the special
+        value "ALL" to all choices.
 
     """
+
     names = [f"--{name.replace('_', '-')}"]
     if short_name is not None:
         if len(short_name) != 1:
@@ -97,6 +122,23 @@ def with_choice(
             raise ValueError(msg)
         names.append(f"-{short_name}")
     option_type, default, show_default = process_choices(allow_all, choices)
+
+    if convert:
+        if not allow_all:
+            msg = "Conversion is only supported when allow_all is True."
+            raise ValueError(msg)
+        if choices is None:
+            msg = "Conversion is only supported when choices are provided."
+            raise ValueError(msg)
+
+        def convert_to_list_callback(
+            ctx: click.Context,  # noqa: ARG001
+            param: click.Parameter,  # noqa: ARG001
+            value: str,
+        ) -> list[str]:
+            return convert_choice(value, choices)
+
+        kwargs["callback"] = convert_to_list_callback
 
     return click.option(
         *names,
@@ -181,4 +223,12 @@ def with_dry_run() -> ClickOption[_P, _T]:
         "-n",
         is_flag=True,
         help="Don't actually run the workflow.",
+    )
+
+
+def with_overwrite() -> ClickOption[_P, _T]:
+    return click.option(
+        "--overwrite",
+        is_flag=True,
+        help="Overwrite existing files.",
     )

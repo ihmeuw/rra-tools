@@ -11,7 +11,7 @@ arguments.
 
 from __future__ import annotations
 
-from collections.abc import Callable
+from collections.abc import Callable, Sequence
 from multiprocessing import Pool as StdLibPool
 from typing import Any, TypeVar
 
@@ -21,17 +21,19 @@ from pathos.multiprocessing import ProcessPool as PathosPool
 
 Loader = Callable[[Any, pd.Index | None, int, int, bool], pd.DataFrame]  # type: ignore[type-arg]
 
+
 T = TypeVar("T")
+T2 = TypeVar("T2")
 
 
 def run_parallel(
-    runner: Callable[[T], Any],
-    arg_list: list[T],
+    runner: Callable[[T], T2],
+    arg_list: Sequence[T],
     *,
     num_cores: int = 1,
     progress_bar: bool = False,
     notebook_fallback: bool = True,
-) -> list[Any]:
+) -> list[T2]:
     """Runs a single argument function in parallel over a list of arguments.
 
     This function dodges multiprocessing if only a single process is requested to

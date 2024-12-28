@@ -94,7 +94,7 @@ def with_choice(
     *,
     allow_all: bool = True,
     choices: Sequence[str] | None = None,
-    convert: bool = True,
+    convert: bool | None = None,
     **kwargs: Any,
 ) -> ClickOption[_P, _T]:
     """Create an option with a set of choices.
@@ -122,6 +122,9 @@ def with_choice(
             raise ValueError(msg)
         names.append(f"-{short_name}")
     option_type, default, show_default = process_choices(allow_all, choices)
+
+    if convert is None:
+        convert = allow_all
 
     if convert:
         if not allow_all:

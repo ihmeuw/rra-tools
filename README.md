@@ -6,9 +6,9 @@
 
 ---
 
-**Documentation**: [https://collijk.github.io/rra-tools](https://collijk.github.io/rra-tools)
+**Documentation**: [https://ihmeuw.github.io/rra-tools](https://ihmeuw.github.io/rra-tools)
 
-**Source Code**: [https://github.com/collijk/rra-tools](https://github.com/collijk/rra-tools)
+**Source Code**: [https://github.com/ihmeuw/rra-tools](https://github.com/ihmeuw/rra-tools)
 
 **PyPI**: [https://pypi.org/project/rra-tools/](https://pypi.org/project/rra-tools/)
 

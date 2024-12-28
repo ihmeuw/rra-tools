@@ -18,8 +18,12 @@ from rra_tools.cli_tools.options import (
 )
 
 __all__ = [
+    "RUN_ALL",
+    "ClickOption",
     "handle_exceptions",
     "import_module_from_info",
+    "process_choices",
+    "with_choice",
     "with_debugger",
     "with_dry_run",
     "with_input_directory",
@@ -28,8 +32,4 @@ __all__ = [
     "with_progress_bar",
     "with_queue",
     "with_verbose",
-    "process_choices",
-    "with_choice",
-    "RUN_ALL",
-    "ClickOption",
 ]

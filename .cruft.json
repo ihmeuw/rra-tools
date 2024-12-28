@@ -1,6 +1,6 @@
 {
   "template": "https://github.com/collijk/python-package-cookiecutter",
-  "commit": "02edc97b37505b2ed5b557da52e8d981a217d594",
+  "commit": "0a6fca5a3df116e2596adc8e8c7a0e5899e72352",
   "checkout": null,
   "context": {
     "cookiecutter": {
@@ -12,7 +12,7 @@
       "package_name": "rra_tools",
       "project_short_description": "Common utilities for IHME Rapid Response team pipelines.",
       "_template": "https://github.com/collijk/python-package-cookiecutter",
-      "_commit": "02edc97b37505b2ed5b557da52e8d981a217d594"
+      "_commit": "0a6fca5a3df116e2596adc8e8c7a0e5899e72352"
     }
   },
   "directory": null

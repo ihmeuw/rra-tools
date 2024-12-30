@@ -1,4 +1,4 @@
-from collections.abc import Callable, Sequence
+from collections.abc import Callable, Collection
 from pathlib import Path
 from typing import Any, ParamSpec, TypeVar
 
@@ -13,7 +13,7 @@ ClickOption = Callable[[_EntryPoint[_P, _T]], _EntryPoint[_P, _T]]
 RUN_ALL = "ALL"
 
 
-def convert_choice(value: str, choices: Sequence[str]) -> list[str]:
+def convert_choice(value: str, choices: Collection[str]) -> list[str]:
     """Convert a choice to a list of choices, handling the special 'All' choice.
 
     Parameters
@@ -35,7 +35,7 @@ def convert_choice(value: str, choices: Sequence[str]) -> list[str]:
 
 def process_choices(
     allow_all: bool,  # noqa: FBT001
-    choices: Sequence[str] | None,
+    choices: Collection[str] | None,
 ) -> tuple[click.ParamType, str | None, bool]:
     """Support function for creating options with choices.
 
@@ -93,7 +93,7 @@ def with_choice(
     short_name: str | None = None,
     *,
     allow_all: bool = True,
-    choices: Sequence[str] | None = None,
+    choices: Collection[str] | None = None,
     convert: bool | None = None,
     **kwargs: Any,
 ) -> ClickOption[_P, _T]:

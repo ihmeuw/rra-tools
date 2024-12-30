@@ -1,6 +1,6 @@
 import datetime
 import uuid
-from collections.abc import Callable, Sequence
+from collections.abc import Callable, Collection
 from pathlib import Path
 from typing import Any
 
@@ -43,8 +43,8 @@ def get_jobmon_tool(workflow_name: str):  # type: ignore[no-untyped-def]
 
 
 def _process_args(
-    args: dict[str, Sequence[Any] | Any] | None,
-) -> tuple[dict[str, Sequence[Any]], str]:
+    args: dict[str, Collection[Any] | Any] | None,
+) -> tuple[dict[str, Collection[Any]], str]:
     """Process arguments for a task.
 
     Parameters
@@ -54,7 +54,7 @@ def _process_args(
 
     Returns
     -------
-    tuple[dict[str, Sequence[Any]], str]
+    tuple[dict[str, Collection[Any]], str]
         The names of all non-flag and non-count arguments and the string
         representation of the arguments.
     """
@@ -80,8 +80,8 @@ def build_parallel_task_graph(  # type: ignore[no-untyped-def] # noqa: PLR0913
     task_name: str,
     task_resources: dict[str, str | int],
     *,
-    node_args: dict[str, Sequence[Any] | None] | None = None,
-    flat_node_args: tuple[tuple[str, ...], Sequence[tuple[Any, ...]]] | None = None,
+    node_args: dict[str, Collection[Any] | None] | None = None,
+    flat_node_args: tuple[tuple[str, ...], Collection[tuple[Any, ...]]] | None = None,
     task_args: dict[str, Any] | None = None,
     op_args: dict[str, Any] | None = None,
     max_attempts: int | None = None,
@@ -138,7 +138,7 @@ def build_parallel_task_graph(  # type: ignore[no-untyped-def] # noqa: PLR0913
             tuple([arg.replace("-", "_") for arg in flat_node_args[0]]),
             flat_node_args[1],
         )
-        clean_node_args: dict[str, Sequence[Any]] = {k: [] for k in flat_node_args[0]}
+        clean_node_args: dict[str, Collection[Any]] = {k: [] for k in flat_node_args[0]}
     else:
         clean_node_args, node_arg_string = _process_args(node_args)
     clean_task_args, task_arg_string = _process_args(task_args)
@@ -225,8 +225,8 @@ def run_parallel(  # noqa: PLR0913
     task_name: str,
     task_resources: dict[str, str | int],
     *,
-    node_args: dict[str, Sequence[Any] | None] | None = None,
-    flat_node_args: tuple[tuple[str, ...], Sequence[tuple[Any, ...]]] | None = None,
+    node_args: dict[str, Collection[Any] | None] | None = None,
+    flat_node_args: tuple[tuple[str, ...], Collection[tuple[Any, ...]]] | None = None,
     task_args: dict[str, Any] | None = None,
     op_args: dict[str, Any] | None = None,
     concurrency_limit: int = 10000,

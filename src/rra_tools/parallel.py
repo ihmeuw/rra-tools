@@ -11,7 +11,7 @@ arguments.
 
 from __future__ import annotations
 
-from collections.abc import Callable, Sequence
+from collections.abc import Callable, Collection
 from multiprocessing import Pool as StdLibPool
 from typing import Any, TypeVar
 
@@ -28,7 +28,7 @@ T2 = TypeVar("T2")
 
 def run_parallel(
     runner: Callable[[T], T2],
-    arg_list: Sequence[T],
+    arg_list: Collection[T],
     *,
     num_cores: int = 1,
     progress_bar: bool = False,

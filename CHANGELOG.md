@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ## [Unreleased]
 ### Added
 - Plotting utility functions
+### Fixed
+- Update stdout/stderr keys for jobmon again
 
 ## [1.0.18] - 2024-12-30
 ### Fixed

@@ -294,7 +294,9 @@ def run_parallel(  # noqa: PLR0913
             raise KeyError(msg)
         log_root = Path(task_args["output-dir"])
     log_dir = make_log_dir(log_root)
+    task_resources["stdout"] = str(log_dir / "output")
     task_resources["standard_output"] = str(log_dir / "output")
+    task_resources["stderr"] = str(log_dir / "error")
     task_resources["standard_error"] = str(log_dir / "error")
 
     tool = get_jobmon_tool(workflow_name=task_name)

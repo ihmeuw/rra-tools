@@ -30,7 +30,11 @@ def convert_choice(value: str, choices: Collection[str]) -> list[str]:
     """
     if value == RUN_ALL:
         return list(choices)
-    return [value]
+    elif value in choices:
+        return [value]
+    else:
+        msg = f"Invalid choice: {value}. Must be one of {choices} or {RUN_ALL}."
+        raise ValueError(msg)
 
 
 def process_choices(

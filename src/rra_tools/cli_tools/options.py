@@ -127,7 +127,7 @@ def with_choice(
         names.append(f"-{short_name}")
     option_type, default, show_default = process_choices(allow_all, choices)
 
-    if convert is None:
+    if choices and convert is None:
         convert = allow_all
 
     if convert:

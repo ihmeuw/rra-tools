@@ -72,6 +72,7 @@ def touch(
     mode: int = 0o664,
     *,
     exist_ok: bool = False,
+    clobber: bool = False,
 ) -> None:
     """Creates a file with the specified mode.
 
@@ -85,6 +86,8 @@ def touch(
         If False, raises FileExistsError if the file already exists.
         If True, raises FileExistsError if path is a directory or permissions
         do not match the mode argument.
+    clobber
+        If True, overwrites the file if it already exists.
 
     """
     path = Path(path)
@@ -92,19 +95,42 @@ def touch(
         if not path.is_file():
             msg = f"File exists at {path} and is not a file."
             raise FileExistsError(msg)
-        if not exist_ok:
+        if not exist_ok and not clobber:
             msg = f"File exists at {path}."
             raise FileExistsError(msg)
-        path_chmod = path.stat().st_mode & 0o777
-        if path_chmod != mode:
-            msg = (
-                f"File exists at {path} with mode {oct(path_chmod)} "
-                f"and not {oct(mode)}."
-            )
-            raise FileExistsError(msg)
+
+        if clobber:
+            path.unlink()
+            _touch_clean(path, mode)
+        else:
+            path_chmod = path.stat().st_mode & 0o777
+            if path_chmod != mode:
+                msg = (
+                    f"File exists at {path} with mode {oct(path_chmod)} "
+                    f"and not {oct(mode)}."
+                )
+                raise FileExistsError(msg)
     else:
-        old_umask = os.umask(0o777 - mode)
-        try:
-            path.touch(exist_ok=exist_ok)
-        finally:
-            os.umask(old_umask)
+        _touch_clean(path, mode)
+
+
+def _touch_clean(path: str | Path, mode: int = 0o664) -> None:
+    """Creates a file with the specified mode, overwriting the file if it exists.
+
+    This function is a helper function for the `touch` function. It is not
+    meant to be used outside of this module.
+
+    Parameters
+    ----------
+    path
+        The path of the file to create.
+    mode
+        The permission mode to use in file creation.
+
+    """
+    path = Path(path)
+    old_umask = os.umask(0o777 - mode)
+    try:
+        path.touch()
+    finally:
+        os.umask(old_umask)

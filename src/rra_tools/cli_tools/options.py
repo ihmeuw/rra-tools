@@ -138,14 +138,26 @@ def with_choice(
             msg = "Conversion is only supported when choices are provided."
             raise ValueError(msg)
 
-        def convert_to_list_callback(
-            ctx: click.Context,  # noqa: ARG001
-            param: click.Parameter,  # noqa: ARG001
-            value: str,
-        ) -> list[str]:
-            return convert_choice(value, choices)
+        if "callback" in kwargs:
+            old_callback = kwargs.pop("callback")
 
-        kwargs["callback"] = convert_to_list_callback
+            def _callback(
+                ctx: click.Context,
+                param: click.Parameter,
+                value: str,
+            ) -> list[str]:
+                value = old_callback(ctx, param, value)
+                return convert_choice(value, choices)
+        else:
+
+            def _callback(
+                ctx: click.Context,  # noqa: ARG001
+                param: click.Parameter,  # noqa: ARG001
+                value: str,
+            ) -> list[str]:
+                return convert_choice(value, choices)
+
+        kwargs["callback"] = _callback
 
     return click.option(
         *names,

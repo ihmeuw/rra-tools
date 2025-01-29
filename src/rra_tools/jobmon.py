@@ -213,7 +213,10 @@ def make_log_dir(
     output_dir: str | Path,
 ) -> Path:
     run_time = datetime.datetime.now().strftime("%Y_%m_%d_%H_%M_%S")  # noqa: DTZ005
-    log_dir = Path(output_dir) / "zzz_logs" / run_time
+    if "logs" in str(output_dir):
+        log_dir = Path(output_dir) / run_time
+    else:
+        log_dir = Path(output_dir) / "zzz_logs" / run_time
     mkdir(log_dir, parents=True)
     mkdir(log_dir / "output")
     mkdir(log_dir / "error")

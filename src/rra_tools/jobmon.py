@@ -196,7 +196,7 @@ def run_workflow(  # type: ignore[no-untyped-def]
     log_method(f"Running workflow with ID {workflow.workflow_id}.")
     log_method("For full information see the Jobmon GUI:")
     log_method(
-        f"https://jobmon-gui.ihme.washington.edu/#/workflow/{workflow.workflow_id}/tasks"
+        f"https://jobmon-gui.ihme.washington.edu/#/workflow/{workflow.workflow_id}"
     )
 
     if "seconds_until_timeout" not in workflow_kwargs:

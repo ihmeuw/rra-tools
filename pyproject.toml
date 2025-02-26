@@ -20,24 +20,6 @@ dependencies = [
     "seaborn"
 ]
 
-[project.optional-dependencies]
-dev = [
-    "mkdocstrings[python]",
-    "mkdocs-material",
-    "mkdocs-table-reader-plugin",
-    "mkdocs-gen-files",
-    "mkdocs-literate-nav",
-    "mkdocs-section-index",
-    "mypy",
-    "pre-commit",
-    "pymdown-extensions",
-    "pytest",
-    "pytest-github-actions-annotate-failures",
-    "pytest-cov",
-    "python-kacl",
-    "ruff"
-]
-
 [project.urls]
 homepage = "https://ihmeuw.github.io/rra-tools"
 repository = "https://ihmeuw.github.io/rra-tools"
@@ -54,6 +36,29 @@ requires-poetry = ">=2.0"
 
 [tool.poetry.dependencies]
 python = ">=3.12, <4.0"
+
+# We keep the dev dependencies here instead of in the project optional dependencies
+# so they're still installed by default with `poetry install`.
+# They won't be installed or shipped with the package.
+ [tool.poetry.group.dev.dependencies]
+# Things we want to put a lower bound on
+mypy = "^1.15.0"
+mkdocs-material = "^9.6.0"
+pre-commit = "^4.0.0"
+pytest = "^8.3.0"
+ruff = "^0.9.7"
+# Things we don't care about the version
+mkdocstrings = {extras = ["python"], version = "*"}
+mkdocs-table-reader-plugin = "*"
+mkdocs-gen-files = "*"
+mkdocs-literate-nav = "*"
+mkdocs-section-index = "*"
+pymdown-extensions = "*"
+pytest-github-actions-annotate-failures = "*"
+pytest-cov = "*"
+python-kacl = "*"
+pandas-stubs = "*"
+types-tqdm = "*"
 
 [build-system]
 requires = ["poetry-core>=2.0.0"]

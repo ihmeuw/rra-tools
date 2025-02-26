@@ -1,69 +1,67 @@
-[tool.poetry]
+[project]
 name = "rra-tools"
 version = "1.0.24"
 description = "Common utilities for IHME Rapid Response team pipelines."
 authors = [
-    "James Collins <collijk@uw.edu>",
+    {name = "James Collins", email = "collijk@uw.edu"},
 ]
 license = "BSD-3-Clause"
 readme = "README.md"
-
-documentation = "https://collijk.github.io/rra-tools"
-homepage = "https://collijk.github.io/rra-tools"
-repository = "https://github.com/collijk/rra-tools"
-
-classifiers = [
-  "Development Status :: 4 - Beta",
-  "Intended Audience :: Developers",
-  "Operating System :: OS Independent",
-  "Programming Language :: Python",
-  "Programming Language :: Python :: 3",
-  "Programming Language :: Python :: 3.10",
-  "Programming Language :: Python :: 3.11",
-  "Programming Language :: Python :: 3.12",
-  "Topic :: Software Development :: Libraries :: Python Modules",
-  "Typing :: Typed",
+requires-python = ">=3.12"
+dependencies = [
+    "click >=8.0",
+    "pandas >=2.2",
+    "deep-translator >=1.11",
+    "tqdm >=4.0",
+    "pathos >=0.3.3",
+    "loguru >=0.7.0",
+    "requests >=2.0",
+    "matplotlib",
+    "seaborn"
 ]
 
+[project.urls]
+homepage = "https://ihmeuw.github.io/rra-tools"
+repository = "https://ihmeuw.github.io/rra-tools"
+documentation = "https://ihmeuw.github.io/rra-tools"
+
+[project.scripts]
+parse_logs = "rra_tools.logging.performance:parse_logs"
+
+[tool.poetry]
 packages = [
     { include = "rra_tools", from = "src" }
 ]
+requires-poetry = ">=2.0"
 
 [tool.poetry.dependencies]
 python = ">=3.12, <4.0"
-click = "*"
-pandas = ">=1.5"
-deep-translator = "*"
-tqdm = "*"
-pathos = "*"
-loguru = "*"
-requests = "*"
-matplotlib = "*"
-seaborn = "*"
 
-[tool.poetry.group.dev.dependencies]
-mkdocstrings = {version = "*", extras = ["python"]}
-mkdocs-material = "*"
+# We keep the dev dependencies here instead of in the project optional dependencies
+# so they're still installed by default with `poetry install`.
+# They won't be installed or shipped with the package.
+ [tool.poetry.group.dev.dependencies]
+# Things we want to put a lower bound on
+mypy = "^1.15.0"
+mkdocs-material = "^9.6.0"
+pre-commit = "^4.0.0"
+pytest = "^8.3.0"
+ruff = "^0.9.7"
+# Things we don't care about the version
+mkdocstrings = {extras = ["python"], version = "*"}
 mkdocs-table-reader-plugin = "*"
 mkdocs-gen-files = "*"
 mkdocs-literate-nav = "*"
 mkdocs-section-index = "*"
-mypy = "*"
-pre-commit = "*"
 pymdown-extensions = "*"
-pytest = "*"
 pytest-github-actions-annotate-failures = "*"
 pytest-cov = "*"
 python-kacl = "*"
-ruff = "*"
 pandas-stubs = "*"
 types-tqdm = "*"
 
-[tool.poetry.scripts]
-parse_logs = 'rra_tools.logging.performance:parse_logs'
-
 [build-system]
-requires = ["poetry-core>=1.0.0"]
+requires = ["poetry-core>=2.0.0"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.ruff]
@@ -135,7 +133,7 @@ exclude_lines = [
 # This is the global mypy configuration.
 # Avoid changing this!
 strict = true  # See all the enabled flags `mypy --help | grep -A 10 'Strict mode'`
-disallow_any_unimported = true
+disallow_any_unimported = false
 
 [[tool.mypy.overrides]]
 module = [

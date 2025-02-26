@@ -35,7 +35,7 @@ def get_jobmon_tool(workflow_name: str):  # type: ignore[no-untyped-def]
             "[global]\n"
             "extra-index-url = https://artifactory.ihme.washington.edu/artifactory/api/pypi/pypi-shared/simple\n"
             "trusted-host = artifactory.ihme.washington.edu/artifactory/api/pypi/pypi-shared\n\n"
-            "and run 'pip install jobmon[ihme]' to install jobmon."
+            "and run 'pip install jobmon_installer_ihme' to install jobmon."
         )
         raise ModuleNotFoundError(msg) from e
 

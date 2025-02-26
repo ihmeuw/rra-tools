@@ -13,22 +13,14 @@ from __future__ import annotations
 
 from collections.abc import Callable, Collection
 from multiprocessing import Pool as StdLibPool
-from typing import Any, TypeVar
 
-import pandas as pd
 import tqdm
 from pathos.multiprocessing import ProcessPool as PathosPool
 
-Loader = Callable[[Any, pd.Index | None, int, int, bool], pd.DataFrame]  # type: ignore[type-arg]
 
-
-T = TypeVar("T")
-T2 = TypeVar("T2")
-
-
-def run_parallel(
-    runner: Callable[[T], T2],
-    arg_list: Collection[T],
+def run_parallel[T1, T2](
+    runner: Callable[[T1], T2],
+    arg_list: Collection[T1],
     *,
     num_cores: int = 1,
     progress_bar: bool = False,

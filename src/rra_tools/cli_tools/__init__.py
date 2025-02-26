@@ -4,7 +4,6 @@ from rra_tools.cli_tools.importers import (
 )
 from rra_tools.cli_tools.options import (
     RUN_ALL,
-    ClickOption,
     convert_choice,
     process_choices,
     with_choice,
@@ -21,7 +20,6 @@ from rra_tools.cli_tools.options import (
 
 __all__ = [
     "RUN_ALL",
-    "ClickOption",
     "convert_choice",
     "handle_exceptions",
     "import_module_from_info",

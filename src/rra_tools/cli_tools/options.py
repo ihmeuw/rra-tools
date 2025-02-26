@@ -1,14 +1,8 @@
 from collections.abc import Callable, Collection
 from pathlib import Path
-from typing import Any, ParamSpec, TypeVar
+from typing import Any
 
 import click
-
-_T = TypeVar("_T")
-_P = ParamSpec("_P")
-_EntryPoint = Callable[_P, _T]
-ClickOption = Callable[[_EntryPoint[_P, _T]], _EntryPoint[_P, _T]]
-
 
 RUN_ALL = "ALL"
 
@@ -92,7 +86,7 @@ def process_choices(
     return option_type, default, show_default
 
 
-def with_choice(
+def with_choice[**P, T](
     name: str,
     short_name: str | None = None,
     *,
@@ -100,7 +94,7 @@ def with_choice(
     choices: Collection[str] | None = None,
     convert: bool | None = None,
     **kwargs: Any,
-) -> ClickOption[_P, _T]:
+) -> Callable[[Callable[P, T]], Callable[P, T]]:
     """Create an option with a set of choices.
 
     Parameters
@@ -168,7 +162,7 @@ def with_choice(
     )
 
 
-def with_verbose() -> ClickOption[_P, _T]:
+def with_verbose[**P, T]() -> Callable[[Callable[P, T]], Callable[P, T]]:
     return click.option(
         "-v",
         "verbose",
@@ -177,7 +171,7 @@ def with_verbose() -> ClickOption[_P, _T]:
     )
 
 
-def with_debugger() -> ClickOption[_P, _T]:
+def with_debugger[**P, T]() -> Callable[[Callable[P, T]], Callable[P, T]]:
     return click.option(
         "--pdb",
         "debugger",
@@ -186,7 +180,10 @@ def with_debugger() -> ClickOption[_P, _T]:
     )
 
 
-def with_input_directory(name: str, default: str | Path) -> ClickOption[_P, _T]:
+def with_input_directory[**P, T](
+    name: str,
+    default: str | Path,
+) -> Callable[[Callable[P, T]], Callable[P, T]]:
     return click.option(
         f"--{name.replace('_', '-')}-dir",
         type=click.Path(exists=True, file_okay=False, dir_okay=True),
@@ -196,7 +193,9 @@ def with_input_directory(name: str, default: str | Path) -> ClickOption[_P, _T]:
     )
 
 
-def with_output_directory(default: str | Path) -> ClickOption[_P, _T]:
+def with_output_directory[**P, T](
+    default: str | Path,
+) -> Callable[[Callable[P, T]], Callable[P, T]]:
     return click.option(
         "--output-dir",
         "-o",
@@ -207,7 +206,9 @@ def with_output_directory(default: str | Path) -> ClickOption[_P, _T]:
     )
 
 
-def with_num_cores(default: int) -> ClickOption[_P, _T]:
+def with_num_cores[**P, T](
+    default: int,
+) -> Callable[[Callable[P, T]], Callable[P, T]]:
     return click.option(
         "--num-cores",
         "-c",
@@ -217,7 +218,7 @@ def with_num_cores(default: int) -> ClickOption[_P, _T]:
     )
 
 
-def with_queue() -> ClickOption[_P, _T]:
+def with_queue[**P, T]() -> Callable[[Callable[P, T]], Callable[P, T]]:
     return click.option(
         "-q",
         "queue",
@@ -227,7 +228,7 @@ def with_queue() -> ClickOption[_P, _T]:
     )
 
 
-def with_progress_bar() -> ClickOption[_P, _T]:
+def with_progress_bar[**P, T]() -> Callable[[Callable[P, T]], Callable[P, T]]:
     return click.option(
         "--progress-bar",
         "--pb",
@@ -236,7 +237,7 @@ def with_progress_bar() -> ClickOption[_P, _T]:
     )
 
 
-def with_dry_run() -> ClickOption[_P, _T]:
+def with_dry_run[**P, T]() -> Callable[[Callable[P, T]], Callable[P, T]]:
     return click.option(
         "--dry-run",
         "-n",
@@ -245,7 +246,7 @@ def with_dry_run() -> ClickOption[_P, _T]:
     )
 
 
-def with_overwrite() -> ClickOption[_P, _T]:
+def with_overwrite[**P, T]() -> Callable[[Callable[P, T]], Callable[P, T]]:
     return click.option(
         "--overwrite",
         is_flag=True,

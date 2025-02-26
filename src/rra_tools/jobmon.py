@@ -145,10 +145,7 @@ def build_parallel_task_graph(  # type: ignore[no-untyped-def] # noqa: PLR0913
     clean_op_args, op_arg_string = _process_args(op_args)
 
     command_template = (
-        f"{runner} {task_name} "
-        f"{node_arg_string} "
-        f"{task_arg_string} "
-        f"{op_arg_string}"
+        f"{runner} {task_name} {node_arg_string} {task_arg_string} {op_arg_string}"
     )
 
     task_template = jobmon_tool.get_task_template(

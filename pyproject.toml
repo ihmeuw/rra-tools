@@ -85,7 +85,8 @@ ignore = [
     "E501",     # Line too long, this is autoformatted
     "PD901",    # Avoid generic use of name `df`.  Practicality beats purity.
     "S603",     # Supbrocess arg validation, prone to false positives
-    "TCH003",   # Imports for typechecking only
+    "TC003",    # Imports for typechecking only
+    "A005",     # We shadow logging here.
 ]
 ignore-init-module-imports = true
 

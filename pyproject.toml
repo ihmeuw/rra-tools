@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "rra-tools"
-version = "1.0.23"
+version = "1.0.24"
 description = "Common utilities for IHME Rapid Response team pipelines."
 authors = [
     "James Collins <collijk@uw.edu>",

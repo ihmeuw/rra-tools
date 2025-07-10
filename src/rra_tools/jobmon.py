@@ -85,6 +85,7 @@ def build_parallel_task_graph(  # type: ignore[no-untyped-def] # noqa: PLR0913
     task_args: dict[str, Any] | None = None,
     op_args: dict[str, Any] | None = None,
     max_attempts: int | None = None,
+    resource_scales: dict[str, Any] | None = None,
 ) -> list[Any]:
     """Build a parallel task graph for jobmon.
 
@@ -118,6 +119,14 @@ def build_parallel_task_graph(  # type: ignore[no-untyped-def] # noqa: PLR0913
         The resources to allocate to the task.
     max_attempts
         The maximum number of attempts to make for each task.
+    resource_scales
+        How much users want to scale their resource request if the
+        the initial request fails. Scale factor can be a numeric value, a Callable
+        that will be applied to the existing resources, or an Iterator. Any Callable
+        should take a single numeric value as its sole argument. Any Iterator should
+        only yield numeric values. Any Iterable can be easily converted to an
+        Iterator by using the iter() built-in (e.g. iter([80, 160, 190])).
+
 
     Returns
     -------
@@ -170,6 +179,7 @@ def build_parallel_task_graph(  # type: ignore[no-untyped-def] # noqa: PLR0913
             task = task_template.create_task(
                 **task_args,
                 max_attempts=max_attempts,
+                resource_scales=resource_scales,
             )
             tasks.append(task)
     else:
@@ -178,6 +188,7 @@ def build_parallel_task_graph(  # type: ignore[no-untyped-def] # noqa: PLR0913
             **clean_task_args,
             **clean_op_args,
             max_attempts=max_attempts,
+            resource_scales=resource_scales,
         )
     return tasks
 
@@ -231,6 +242,7 @@ def run_parallel(  # noqa: PLR0913
     op_args: dict[str, Any] | None = None,
     concurrency_limit: int = 10000,
     max_attempts: int | None = None,
+    resource_scales: dict[str, Any] | None = None,
     log_root: str | Path | None = None,
     log_method: Callable[[str], None] = print,
 ) -> str:
@@ -271,6 +283,13 @@ def run_parallel(  # noqa: PLR0913
         The maximum number of tasks to run concurrently. Default is 10000.
     max_attempts
         The maximum number of attempts to make for each task.
+    resource_scales
+        How much users want to scale their resource request if the
+        the initial request fails. Scale factor can be a numeric value, a Callable
+        that will be applied to the existing resources, or an Iterator. Any Callable
+        should take a single numeric value as its sole argument. Any Iterator should
+        only yield numeric values. Any Iterable can be easily converted to an
+        Iterator by using the iter() built-in (e.g. iter([80, 160, 190])).
     log_root
         The root directory for the logs. Default is None.
     log_method
@@ -315,6 +334,7 @@ def run_parallel(  # noqa: PLR0913
         task_resources=task_resources,
         runner=runner,
         max_attempts=max_attempts,
+        resource_scales=resource_scales
     )
 
     workflow.add_tasks(tasks)

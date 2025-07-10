@@ -334,7 +334,7 @@ def run_parallel(  # noqa: PLR0913
         task_resources=task_resources,
         runner=runner,
         max_attempts=max_attempts,
-        resource_scales=resource_scales
+        resource_scales=resource_scales,
     )
 
     workflow.add_tasks(tasks)

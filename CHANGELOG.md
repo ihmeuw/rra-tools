@@ -5,6 +5,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
+## [1.0.27] - 2025-07-10
+### Added
+- Fix release version bugs.
+
+## [1.0.26] - 2025-07-10
+### Added
+- Expose resource_scales jobmon argument.
+
 ## [1.0.25] - 2025-02-26
 ### Added
 - Build chain and dependency updates to move to poetry v2.
@@ -130,7 +138,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Added subpackage with cli tools
 - Added subpackage with logging utilities
 
-[Unreleased]: https://github.com/ihmeuw/rra-tools/compare/1.0.25...master
+[Unreleased]: https://github.com/ihmeuw/rra-tools/compare/1.0.27...master
+[1.0.27]: https://github.com/ihmeuw/rra-tools/compare/1.0.26...1.0.27
+[1.0.26]: https://github.com/ihmeuw/rra-tools/compare/1.0.25...1.0.26
 [1.0.25]: https://github.com/ihmeuw/rra-tools/compare/1.0.24...1.0.25
 [1.0.24]: https://github.com/ihmeuw/rra-tools/compare/1.0.23...1.0.24
 [1.0.23]: https://github.com/ihmeuw/rra-tools/compare/1.0.22...1.0.23

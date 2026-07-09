@@ -86,6 +86,7 @@ def build_parallel_task_graph(  # type: ignore[no-untyped-def] # noqa: PLR0913
     op_args: dict[str, Any] | None = None,
     max_attempts: int | None = None,
     resource_scales: dict[str, Any] | None = None,
+    per_task_resources: Callable[[tuple[Any, ...]], dict[str, Any]] | None = None,
 ) -> list[Any]:
     """Build a parallel task graph for jobmon.
 
@@ -126,6 +127,12 @@ def build_parallel_task_graph(  # type: ignore[no-untyped-def] # noqa: PLR0913
         should take a single numeric value as its sole argument. Any Iterator should
         only yield numeric values. Any Iterable can be easily converted to an
         Iterator by using the iter() built-in (e.g. iter([80, 160, 190])).
+    per_task_resources
+        A callable mapping each flat_node_args value tuple (in the same order
+        as the argument names) to a dict of compute resources for that task
+        (e.g. {"memory": "50G", "runtime": "30m"}). The returned dict is merged
+        over task_resources, so only the resources that vary need to be
+        provided. Requires flat_node_args.
 
 
     Returns
@@ -138,6 +145,9 @@ def build_parallel_task_graph(  # type: ignore[no-untyped-def] # noqa: PLR0913
 
     if node_args is not None and flat_node_args is not None:
         msg = "node_args and flat_node_args are mutually exclusive."
+        raise ValueError(msg)
+    if per_task_resources is not None and flat_node_args is None:
+        msg = "per_task_resources requires flat_node_args."
         raise ValueError(msg)
     if flat_node_args is not None:
         node_arg_string = " ".join(
@@ -176,10 +186,16 @@ def build_parallel_task_graph(  # type: ignore[no-untyped-def] # noqa: PLR0913
                 **clean_task_args,
                 **clean_op_args,
             }
+            compute_resources = (
+                {**task_resources, **per_task_resources(args)}
+                if per_task_resources is not None
+                else None
+            )
             task = task_template.create_task(
                 **task_args,
                 max_attempts=max_attempts,
                 resource_scales=resource_scales,
+                compute_resources=compute_resources,
             )
             tasks.append(task)
     else:
@@ -243,6 +259,7 @@ def run_parallel(  # noqa: PLR0913
     concurrency_limit: int = 10000,
     max_attempts: int | None = None,
     resource_scales: dict[str, Any] | None = None,
+    per_task_resources: Callable[[tuple[Any, ...]], dict[str, Any]] | None = None,
     log_root: str | Path | None = None,
     log_method: Callable[[str], None] = print,
 ) -> str:
@@ -290,6 +307,12 @@ def run_parallel(  # noqa: PLR0913
         should take a single numeric value as its sole argument. Any Iterator should
         only yield numeric values. Any Iterable can be easily converted to an
         Iterator by using the iter() built-in (e.g. iter([80, 160, 190])).
+    per_task_resources
+        A callable mapping each flat_node_args value tuple (in the same order
+        as the argument names) to a dict of compute resources for that task
+        (e.g. {"memory": "50G", "runtime": "30m"}). The returned dict is merged
+        over task_resources, so only the resources that vary need to be
+        provided. Requires flat_node_args.
     log_root
         The root directory for the logs. Default is None.
     log_method
@@ -335,6 +358,7 @@ def run_parallel(  # noqa: PLR0913
         runner=runner,
         max_attempts=max_attempts,
         resource_scales=resource_scales,
+        per_task_resources=per_task_resources,
     )
 
     workflow.add_tasks(tasks)
